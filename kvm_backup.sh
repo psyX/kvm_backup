@@ -1,10 +1,10 @@
 #!/bin/bash
 # скрипт для бэкапа lvm томов для виртуальных машин libvirtd
 # 
-# востановление 
+# восстановление
 # читаем файл *.lvdisplay и создаем новый том с таким же размером
 # из файла *.xml создаем новую виртуальную машину (если нужно исправляем путь к тому lvm)
-# востанавливаем данные диска:
+# восстанавливаем данные диска:
 # dd if=*.raw.gz | gzip -dc | dd of=/dev/vg/lv
 # если есть файл *.state то делаем 
 # virsh restore *.state 
@@ -23,7 +23,7 @@ backup_dir="/mnt/raid/backup/kvm"
 exclude_vm_regexp="new|test|^dbpg$"
 
 #
-# exclude_lv_regexp - регулярное выражение содержащее имя lvm тома для исключения из списка на резевное копирование
+# exclude_lv_regexp - регулярное выражение содержащее имя lvm тома для исключения из списка на резервное копирование
 #
 exclude_lv_regexp="^$"
 
@@ -33,7 +33,7 @@ exclude_lv_regexp="^$"
 backup_date=`date +%Y-%m-%d-%H-%M-%S`
 
 #
-# lv_suffix - суфикс для имени снэпшота lvm тома
+# lv_suffix - суффикс для имени снэпшота lvm тома
 #
 lv_suffix="-backup2347"
 
@@ -96,7 +96,7 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
             else
                 msg 2 "save state for $vm_name unsuccessful"
                 msg 0 "restore state for $vm_name"
-                # если не удалось сохранить статус востановим машину
+                # если не удалось сохранить статус восстановим машину
                 virsh restore $state_file > /dev/null 2>&1
                 # и перейдем к следующей вм
                 msg 1 "backup $vm_name was skipped"
@@ -167,7 +167,7 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
                     # сохраняем информацию по тому
                     lvdisplay $lv > $lvdisplay_file
 
-                    # если уже такой снапшот есть, например остался от прошлого запуска, попробуем его удалить, если нет, то идем к следущему тому, а этот пропускаем
+                    # если уже такой снапшот есть, например остался от прошлого запуска, попробуем его удалить, если нет, то идем к следующему тому, а этот пропускаем
                     if [ -b "$lv_filename_snapshot" ]; then
                         lvremove -f "$lv_filename_snapshot" > /dev/null 2>&1
                         if [ $? -ne 0 ]; then
@@ -181,7 +181,7 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
                     lvcreate -s -n"$lv_name_snapshot" -L512M $lv > /dev/null 2>&1
                     #touch /tmp/ololo
                     # если снапшот удачно создался то записываем это в лист для далнейшей обработки
-                    # если произошла ошибка то преходим к следующему тому
+                    # если произошла ошибка то переходим к следующему тому
                     if [ $? -eq 0 ]; then
                         msg 0 "snapshot $lv_name_snapshot of vm: $vm_name was successful created"
                         echo "$lv_filename_snapshot $backup_file" >> $lv_backup_list
@@ -198,14 +198,14 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
                 msg 1 "$lv has been excluded vm: $vm_name, set in exclude_lv_regexp"
             fi
         done
-        # после того как проши по всем томам текущей машины и создали им снапшоты востанавливаем работу вм
+        # после того как прошли по всем томам текущей машины и создали им снапшоты востанавливаем работу вм
         if [ "$vm_state" -ne "shutoff" ]; then
             virsh restore $state_file > /dev/null 2>&1
             #touch /tmp/ololo
             if [ $? -eq 0 ]; then
                 msg 0 "vm $vm_name was successful restored"
             else
-                # если востановить не удалось идем к следующей вм
+                # если восстановить не удалось идем к следующей вм
                 msg 2 "error: vm $vm_name was unsuccessful restored"
                 continue
             fi
@@ -217,7 +217,7 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
     echo ""
 done
 
-# бежим по созданому списку и бэкапим все тома
+# бежим по созданному списку и бэкапим все тома
 cat "$lv_backup_list" | while read s; do 
     if_file=`echo "$s" | cut -d' ' -f1`
     of_file=`echo "$s" | cut -d' ' -f2`
