@@ -125,8 +125,8 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
 
             # флаг может быть установлен только в предыдущей итерации, если девасй флоппи или cdrom
             # те если текущий $lv является файлом образа дискеты или iso образ диска то пропускаем эту итерацию цикла 
-            if [ "$skip_flag" -eq "1" ]; then
-                msg 1 "file $lv for vm: $vm_name was skipped because it is $device"
+            if [ "$skip_flag" == "1" ]; then
+                msg 1 "file $lv for vm: $vm_name was skipped because it is $skip_device"
                 skip_flag=0
                 continue
             fi
@@ -199,7 +199,7 @@ virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
             fi
         done
         # после того как прошли по всем томам текущей машины и создали им снапшоты востанавливаем работу вм
-        if [ "$vm_state" -ne "shutoff" ]; then
+        if [ "$vm_state" != "shutoff" ]; then
             virsh restore $state_file > /dev/null 2>&1
             #touch /tmp/ololo
             if [ $? -eq 0 ]; then
