@@ -68,8 +68,15 @@ msg 0 "Starting VMs backup, at $backup_date"
 # очищаем список томов для бэкапа
 cat /dev/null > $lv_backup_list
 
+
+# первый параметр имя виртуальной машины
+arg_vm="$1"
+if [ -z "$arg_vm" ]; then
+    arg_vm="."
+fi
+
 # идем циклом по всем вм
-virsh list --all | tail -n+3 | sed '/^$/d' | while read m; do
+virsh list --all | tail -n+3 | sed '/^$/d' | grep "$arg_vm" | while read m; do
     # берем имя и текущий статус вм
     vm_name=`echo $m | awk '{print $2}'`;
     vm_state=`echo $m | awk '{print $3 $4}'`
